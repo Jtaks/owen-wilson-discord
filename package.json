@@ -1,0 +1,33 @@
+{
+  "name": "owen-wilson-discord",
+  "version": "0.0.1",
+  "description": "A discord bot that serves wows",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -r ./dist",
+    "start": "node dist"
+  },
+  "keywords": [
+    "owen",
+    "wilson",
+    "discord",
+    "bot"
+  ],
+  "author": "Jesse Liptak",
+  "license": "GNU GPLv3",
+  "dependencies": {
+    "@discordjs/builders": "0.13.0",
+    "@discordjs/opus": "0.5.3",
+    "@discordjs/rest": "0.4.1",
+    "@discordjs/voice": "0.9.0",
+    "discord.js": "13.6.0",
+    "dotenv": "16.0.0",
+    "sodium": "3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.31",
+    "discord-api-types": "0.32.1",
+    "prettier": "2.6.2",
+    "typescript": "4.6.4"
+  }
+}
