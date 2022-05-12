@@ -7,45 +7,90 @@ import {
 } from "@discordjs/builders";
 import {
   joinVoiceChannel,
+  getVoiceConnection,
   createAudioPlayer,
   createAudioResource,
   entersState,
   StreamType,
   AudioPlayerStatus,
   VoiceConnectionStatus,
+  AudioPlayer,
+  VoiceConnection,
 } from "@discordjs/voice";
 import { CommandInteraction, GuildMember, VoiceBasedChannel } from "discord.js";
 import { createDiscordJSAdapter } from "../discord/adapter";
 import * as WowPI from "../owen-wilson-api";
+import { IWowResponse } from "../owen-wilson-api";
 
-const player = createAudioPlayer();
+const playWows = (
+  interaction: CommandInteraction,
+  player: AudioPlayer,
+  wows: IWowResponse[]
+) => {
+  let seeker = 1;
+  player.on(AudioPlayerStatus.Idle, () => {
+    if (seeker >= wows.length) {
+      player.stop();
+      return;
+    }
 
-function playWow(url: string) {
-  const resource = createAudioResource(url, {
+    const wow = wows[seeker];
+    const resource = createAudioResource(wow.audio, {
+      inputType: StreamType.Arbitrary,
+    });
+
+    if (seeker === 0) {
+      interaction.editReply(
+        `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
+      );
+    } else {
+      interaction.followUp(
+        `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
+      );
+    }
+
+    player.play(resource);
+    seeker++;
+  });
+
+  const wow = wows[0];
+  const resource = createAudioResource(wow.audio, {
     inputType: StreamType.Arbitrary,
   });
 
   player.play(resource);
 
-  return entersState(player, AudioPlayerStatus.Playing, 5e3);
-}
+  interaction.editReply(
+    `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
+  );
 
-async function connectToChannel(channel: VoiceBasedChannel) {
-  const connection = joinVoiceChannel({
-    channelId: channel.id,
-    guildId: channel.guild.id,
-    selfDeaf: true,
-    adapterCreator: createDiscordJSAdapter(channel),
-  });
+  return entersState(player, AudioPlayerStatus.Playing, 5e3);
+};
+
+const connectToChannel = async (
+  channel: VoiceBasedChannel
+): Promise<[VoiceConnection, AudioPlayer]> => {
+  const connection =
+    getVoiceConnection(channel.guild.id) ??
+    joinVoiceChannel({
+      channelId: channel.id,
+      guildId: channel.guild.id,
+      selfDeaf: true,
+      adapterCreator: createDiscordJSAdapter(channel),
+    });
 
   try {
     await entersState(connection, VoiceConnectionStatus.Ready, 30e3);
-    return connection;
   } catch (error) {
     connection.destroy();
     throw error;
   }
-}
+
+  const player = createAudioPlayer();
+  connection.subscribe(player);
+
+  return [connection, player];
+};
 
 const getWow = (
   options: CommandInteraction["options"]
@@ -55,16 +100,19 @@ const getWow = (
     return WowPI.ordered({ index: options.getInteger("index", true) });
   }
 
+  const sort = options.getString("sort") as WowPI.WowSort | undefined;
+  const direction = options.getString("direction") as
+    | WowPI.WowDirection
+    | undefined;
+
   return WowPI.random({
-    // TODO
-    // results: options.getNumber("results"),
+    results: options.getNumber("results"),
     year: options.getNumber("year"),
     movie: options.getString("movie"),
     director: options.getString("director"),
     wowsInMovie: options.getString("wows_in_movie"),
-    // TODO
-    // sort: WowPI.WowSort[options.getString("sort") ?? WowPI.WowSort.Movie],
-    // direction: WowPI.WowDirec[options.getString("direction")],
+    sort: WowPI.WowSort[sort ?? WowPI.WowSort.movie],
+    direction: WowPI.WowDirection[direction ?? WowPI.WowDirection.asc],
   });
 };
 
@@ -75,14 +123,13 @@ const data = new SlashCommandBuilder()
     new SlashCommandSubcommandBuilder()
       .setName("random")
       .setDescription("Says a random wow!")
-      // TOOD
-      // .addNumberOption(
-      //   new SlashCommandNumberOption()
-      //     .setName("results")
-      //     .setDescription("Picks a specific number of random wows.")
-      //     .setMinValue(1)
-      //     .setMaxValue(10)
-      // )
+      .addNumberOption(
+        new SlashCommandNumberOption()
+          .setName("results")
+          .setDescription("Picks a specific number of random wows.")
+          .setMinValue(1)
+          .setMaxValue(10)
+      )
       .addNumberOption(
         new SlashCommandNumberOption()
           .setName("year")
@@ -110,40 +157,39 @@ const data = new SlashCommandBuilder()
             "Picks a random wow by the number of its occurrence in a movie."
           )
       )
-    // TODO
-    // .addStringOption(
-    //   new SlashCommandStringOption()
-    //     .setName("sort")
-    //     .setDescription("Sort multiple random results.")
-    //     .addChoices(
-    //       { name: WowPI.WowSort.Movie, value: WowPI.WowSort.Movie },
-    //       {
-    //         name: WowPI.WowSort.ReleaseDate,
-    //         value: WowPI.WowSort.ReleaseDate,
-    //       },
-    //       { name: WowPI.WowSort.Year, value: WowPI.WowSort.Year },
-    //       { name: WowPI.WowSort.Director, value: WowPI.WowSort.Director },
-    //       {
-    //         name: WowPI.WowSort.NumberCurrentWow,
-    //         value: WowPI.WowSort.NumberCurrentWow,
-    //       }
-    //     )
-    // )
-    // .addStringOption(
-    //   new SlashCommandStringOption()
-    //     .setName("direction")
-    //     .setDescription(
-    //       "Sort direction can be either ascending or descending."
-    //     )
-    //     .addChoices(
-    //       { name: WowPI.WowDirection.ASC, value: WowPI.WowDirection.ASC },
-    //       { name: WowPI.WowDirection.DESC, value: WowPI.WowDirection.DESC }
-    //     )
-    // )
+      .addStringOption(
+        new SlashCommandStringOption()
+          .setName("sort")
+          .setDescription("Sort multiple random results.")
+          .addChoices(
+            { name: WowPI.WowSort.movie, value: WowPI.WowSort.movie },
+            {
+              name: WowPI.WowSort.release_date,
+              value: WowPI.WowSort.release_date,
+            },
+            { name: WowPI.WowSort.year, value: WowPI.WowSort.year },
+            { name: WowPI.WowSort.director, value: WowPI.WowSort.director },
+            {
+              name: WowPI.WowSort.number_current_wow,
+              value: WowPI.WowSort.number_current_wow,
+            }
+          )
+      )
+      .addStringOption(
+        new SlashCommandStringOption()
+          .setName("direction")
+          .setDescription(
+            "Sort direction can be either ascending or descending."
+          )
+          .addChoices(
+            { name: WowPI.WowDirection.asc, value: WowPI.WowDirection.asc },
+            { name: WowPI.WowDirection.desc, value: WowPI.WowDirection.desc }
+          )
+      )
   )
   .addSubcommand(
     new SlashCommandSubcommandBuilder()
-      .setName("indexed")
+      .setName("ordered")
       .setDescription("Says a specific wow!")
       .addIntegerOption(
         new SlashCommandIntegerOption()
@@ -161,36 +207,32 @@ const execute = async (interaction: CommandInteraction) => {
   if (!(interaction.member instanceof GuildMember)) {
     console.error("Hey the thing happened! Take a look:");
     console.dir(interaction.member);
-    interaction.reply("Somthing unique happened, tell Jesse so he can fix it.");
+    interaction.reply({
+      content: "Wow! Somthing unique happened, tell Jesse so he can fix it.",
+      ephemeral: true,
+    });
     return;
   }
 
   const channel = interaction.member?.voice.channel;
   if (!channel) {
     interaction.reply({
-      content: "Join a voice channel, silly!",
+      content: "Wow, join a voice channel!",
       ephemeral: true,
     });
     return;
   }
 
-  interaction.deferReply();
-  const [connection, [wow]] = await Promise.all([
-    connectToChannel(channel),
-    getWow(interaction.options),
-  ]);
+  await interaction.deferReply();
+  const wows = await getWow(interaction.options);
 
-  if (!wow) {
+  if (!wows.length) {
     interaction.editReply("I couldn't find a wow matching your search :(");
     return;
   }
 
-  connection.subscribe(player);
-  await playWow(wow.audio);
-
-  interaction.editReply(
-    `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
-  );
+  const [, player] = await connectToChannel(channel);
+  await playWows(interaction, player, wows);
 };
 
 module.exports = { data, execute };

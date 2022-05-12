@@ -36,7 +36,6 @@ export const registerCommands = async () => {
   return commands;
 };
 
-// TODO: Delete non-existing commands
 export const removeOldCommands = async () => {
   const rest = new REST({ version: "9" }).setToken(token);
   const existingCommands = (await rest.get(
