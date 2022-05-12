@@ -12,9 +12,9 @@ Most dependencies are installed via `npm` with the exception of `ffmpeg`. It can
 
 There are some environment variables that are expected to be set. For local development a `.env` file is used. It is not committed to git to keep the data private. Create the file with your private data.
 
-| Variable         | Value                  |
-| ---------------- | ---------------------- |
-| `APPLICATION_ID` | 'your-application-id   |
-| `CLIENT_ID`      | `'your-client-id'`     |
-| `GUILD_ID`       | `'your-test-guild-id'` |
-| `TOKEN`          | `'your-bot-token'`     |
+| Variable         | Value                   |
+| ---------------- | ----------------------- |
+| `APPLICATION_ID` | `'your-application-id'` |
+| `CLIENT_ID`      | `'your-client-id'`      |
+| `GUILD_ID`       | `'your-test-guild-id'`  |
+| `TOKEN`          | `'your-bot-token'`      |
