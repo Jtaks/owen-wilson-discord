@@ -17,10 +17,17 @@ import {
   AudioPlayer,
   VoiceConnection,
 } from "@discordjs/voice";
-import { CommandInteraction, GuildMember, VoiceBasedChannel } from "discord.js";
+import {
+  CommandInteraction,
+  GuildMember,
+  Snowflake,
+  VoiceBasedChannel,
+} from "discord.js";
 import { createDiscordJSAdapter } from "../discord/adapter";
 import * as WowPI from "../owen-wilson-api";
 import { IWowResponse } from "../owen-wilson-api";
+
+const timeoutIdMap = new Map<Snowflake, NodeJS.Timeout>();
 
 const playWows = (
   interaction: CommandInteraction,
@@ -231,8 +238,19 @@ const execute = async (interaction: CommandInteraction) => {
     return;
   }
 
-  const [, player] = await connectToChannel(channel);
+  const [connection, player] = await connectToChannel(channel);
   await playWows(interaction, player, wows);
+
+  const existingTimout = timeoutIdMap.get(channel.guild.id);
+  if (existingTimout) {
+    clearTimeout(existingTimout);
+  }
+  timeoutIdMap.set(
+    channel.guild.id,
+    setTimeout(() => {
+      connection.destroy();
+    }, 60 * 1000 * 5)
+  );
 };
 
 module.exports = { data, execute };
