@@ -1,10 +1,10 @@
 import { Client, Intents } from "discord.js";
-import * as Config from "./config";
+import * as Config from "../config";
 import {
   getCommand,
   registerCommands,
   removeOldCommands,
-} from "./command-manager";
+} from "../lib/command-manager";
 
 const initializeDiscordClient = async () => {
   console.log(

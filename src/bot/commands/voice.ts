@@ -23,7 +23,7 @@ import {
   Snowflake,
   VoiceBasedChannel,
 } from "discord.js";
-import { createDiscordJSAdapter } from "../discord/adapter";
+import { createDiscordJSAdapter } from "../utils/adapter";
 import * as WowPI from "../owen-wilson-api";
 import { IWowResponse } from "../owen-wilson-api";
 

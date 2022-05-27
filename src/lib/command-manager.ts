@@ -4,7 +4,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { Routes, APIApplicationCommand } from "discord-api-types/v9";
 import { Collection, CommandInteraction, Snowflake } from "discord.js";
-import * as Config from "./config";
+import * as Config from "../config";
 
 interface ICommand {
   data: SlashCommandBuilder;
@@ -13,7 +13,7 @@ interface ICommand {
 
 const rest = new REST({ version: "9" }).setToken(Config.token);
 
-const commandsDir = path.join(__dirname, "./commands");
+const commandsDir = path.resolve(__dirname, "../bot/commands");
 const commands = new Collection<string, ICommand>();
 
 fs.readdirSync(commandsDir).forEach((file: string) => {
@@ -44,7 +44,9 @@ export const registerCommands = async () => {
         commands.mapValues((command) => command.data.toJSON()).values()
       ),
     });
-    console.log("Successfully registered application commands.");
+    console.log(
+      `Successfully registered ${commands.size} application commands.`
+    );
   } catch (e) {
     console.error("Error registering commands:");
     console.error(e);
