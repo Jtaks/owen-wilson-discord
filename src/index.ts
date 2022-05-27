@@ -1,10 +1,15 @@
 import { Client, Intents } from "discord.js";
-import { token } from "./config";
-import { registerCommands, removeOldCommands } from "./register-commands";
+import * as Config from "./config";
+import {
+  getCommand,
+  registerCommands,
+  removeOldCommands,
+} from "./command-manager";
 
-const run = async () => {
-  await removeOldCommands();
-  const commands = await registerCommands();
+const initializeDiscordClient = async () => {
+  console.log(
+    `Running in ${Config.isProduction ? "production" : "development"} mode`
+  );
 
   const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
@@ -17,7 +22,7 @@ const run = async () => {
   client.on("interactionCreate", async (interaction) => {
     if (!interaction.isCommand()) return;
 
-    const command = commands.get(interaction.commandName);
+    const command = getCommand(interaction.commandName);
 
     if (!command) {
       return;
@@ -40,7 +45,9 @@ const run = async () => {
     }
   });
 
-  client.login(token);
+  client.login(Config.token);
 };
 
-run();
+initializeDiscordClient();
+removeOldCommands();
+registerCommands();
