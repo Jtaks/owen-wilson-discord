@@ -46,16 +46,6 @@ const playWows = (
       inputType: StreamType.Arbitrary,
     });
 
-    if (seeker === 0) {
-      interaction.editReply(
-        `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
-      );
-    } else {
-      interaction.followUp(
-        `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
-      );
-    }
-
     player.play(resource);
     seeker++;
   });
@@ -68,7 +58,12 @@ const playWows = (
   player.play(resource);
 
   interaction.editReply(
-    `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
+    wows
+      .map(
+        (wow) =>
+          `${wow.character} says **wow** in ${wow.director}'s movie: ${wow.movie} (${wow.year})\n> ${wow.full_line}`
+      )
+      .join("\n")
   );
 
   return entersState(player, AudioPlayerStatus.Playing, 5e3);
