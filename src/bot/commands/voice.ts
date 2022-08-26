@@ -97,7 +97,7 @@ const connectToChannel = async (
 const getWow = (
   options: CommandInteraction["options"]
 ): Promise<WowPI.IWowResponse[]> => {
-  if (options.getSubcommand() === "indexed") {
+  if (options.getSubcommand() === "ordered") {
     // Ordered wow returned as single object
     return WowPI.ordered({ index: options.getInteger("index", true) });
   }
