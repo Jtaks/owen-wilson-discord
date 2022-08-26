@@ -1,5 +1,6 @@
 import * as https from "https";
 import { URL, URLSearchParams } from "url";
+import { log } from "../../lib/logger";
 
 export const fetch = <T>(
   options: https.RequestOptions | URL | string,
@@ -20,9 +21,7 @@ export const fetch = <T>(
         if (contentType.includes("application/json")) {
           decodedData = JSON.parse(encodedData);
         } else {
-          console.warn(
-            `Response contains unhandled content-type '${contentType}'`
-          );
+          log(`Response contains unhandled content-type '${contentType}'`);
           decodedData = encodedData;
         }
 
@@ -48,7 +47,7 @@ export const fetch = <T>(
       } else if (contentType.includes("application/x-www-form-urlencoded")) {
         encodedData = new URLSearchParams(body).toString();
       } else {
-        console.warn(`Request contains unhandled content-type: ${contentType}`);
+        log(`Request contains unhandled content-type: ${contentType}`);
         encodedData = body;
       }
 

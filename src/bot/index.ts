@@ -5,35 +5,45 @@ import {
   registerCommands,
   removeOldCommands,
 } from "../lib/command-manager";
+import { log, debug } from "../lib/logger";
+
+const mode = Config.isProduction() ? "production" : "development";
 
 const initializeDiscordClient = async () => {
-  console.log(
-    `Running in ${Config.isProduction ? "production" : "development"} mode`
-  );
+  log(`Running in ${mode} mode.`);
 
   const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
   });
 
   client.once("ready", () => {
-    console.log("Ready!");
+    log("Ready!");
   });
 
   client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand()) {
+      debug(
+        `Received something that was not a command:\n${JSON.stringify(
+          interaction.toJSON()
+        )}`
+      );
+      return;
+    }
 
     const command = getCommand(interaction.commandName);
 
     if (!command) {
+      debug(`Received unknown command: ${interaction.commandName}`);
       return;
     }
 
     try {
+      debug(`Executing command: ${interaction.commandName}`);
       await command.execute(interaction);
     } catch (error) {
-      console.error(error);
+      log(error);
       const response = {
-        content: "There was an error while executing this command!",
+        content: "Wow! Something went wrong.",
         ephemeral: true,
       };
 

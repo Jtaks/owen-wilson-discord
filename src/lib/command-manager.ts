@@ -5,6 +5,7 @@ import { REST } from "@discordjs/rest";
 import { Routes, APIApplicationCommand } from "discord-api-types/v9";
 import { Collection, CommandInteraction, Snowflake } from "discord.js";
 import * as Config from "../config";
+import { log } from "./logger";
 
 interface ICommand {
   data: SlashCommandBuilder;
@@ -24,12 +25,12 @@ fs.readdirSync(commandsDir).forEach((file: string) => {
 export const getCommand = (key: string) => commands.get(key);
 
 const getApplicationCommandsRoute = () =>
-  Config.isProduction
+  Config.isProduction()
     ? Routes.applicationCommands(Config.applicationId)
     : Routes.applicationGuildCommands(Config.clientId, Config.guildId);
 
 const getApplicationCommandRoute = (commandId: Snowflake) =>
-  Config.isProduction
+  Config.isProduction()
     ? Routes.applicationCommand(Config.applicationId, commandId)
     : Routes.applicationGuildCommand(
         Config.applicationId,
@@ -44,12 +45,10 @@ export const registerCommands = async () => {
         commands.mapValues((command) => command.data.toJSON()).values()
       ),
     });
-    console.log(
-      `Successfully registered ${commands.size} application commands.`
-    );
+    log(`Successfully registered ${commands.size} application commands.`);
   } catch (e) {
-    console.error("Error registering commands:");
-    console.error(e);
+    log("Error registering commands:");
+    log(e);
   }
 
   return commands;
@@ -66,16 +65,16 @@ export const removeOldCommands = async () => {
         return;
       }
 
-      console.log(`Deleting old command ${command.name}`);
+      log(`Deleting old command: ${command.name}`);
       try {
         await rest.delete(getApplicationCommandRoute(command.id));
       } catch (e) {
-        console.error(`Error deleting old command ${command.name}`);
-        console.error(e);
+        log(`Error deleting old command: ${command.name}`);
+        log(e);
       }
     }
   } catch (e) {
-    console.error("Error deleting old command:");
-    console.error(e);
+    log("Error deleting old command:");
+    log(e);
   }
 };

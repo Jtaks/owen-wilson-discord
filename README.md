@@ -10,12 +10,13 @@ Most dependencies are installed via `npm` with the exception of `ffmpeg`. It can
 
 ### Environment Variables
 
-There are some environment variables that are expected to be set. For local development a `.env` file is used. It is not committed to git to keep the data private. Create the file with your private data.
+There are some environment variables that are expected to be set. You can create a `.env` file in the project root which is loaded by `dotenv`. It is not committed to git to keep the data private.
 
-| Variable         | Value                      |
-| ---------------- | -------------------------- |
-| `NODE_ENV`       | `'development,production'` |
-| `APPLICATION_ID` | `'your-application-id'`    |
-| `CLIENT_ID`      | `'your-client-id'`         |
-| `GUILD_ID`       | `'your-test-guild-id'`     |
-| `TOKEN`          | `'your-bot-token'`         |
+| Variable         | Value                    | Environment |
+| ---------------- | ------------------------ | ----------- |
+| `NODE_ENV`       | `development,production` | N/A         |
+| `APPLICATION_ID` | `your-application-id`    | Both        |
+| `CLIENT_ID`      | `your-client-id`         | Development |
+| `GUILD_ID`       | `your-test-guild-id`     | Development |
+| `TOKEN`          | `your-bot-token`         | Both        |
+| `DEBUG`          | `true,false`             | Both        |
