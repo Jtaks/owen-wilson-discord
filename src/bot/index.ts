@@ -5,7 +5,7 @@ import {
   registerCommands,
   removeOldCommands,
 } from "../lib/command-manager";
-import { log, debug } from "../lib/logger";
+import { debug, log } from "../lib/logger";
 
 const mode = Config.isProduction() ? "production" : "development";
 

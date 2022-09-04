@@ -1,28 +1,19 @@
-import * as fs from "fs";
-import * as path from "path";
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
-import { Routes, APIApplicationCommand } from "discord-api-types/v9";
-import { Collection, CommandInteraction, Snowflake } from "discord.js";
+import { APIApplicationCommand, Routes } from "discord-api-types/v9";
+import { Collection, Snowflake } from "discord.js";
+import * as commands from "../bot/commands";
+import { ICommand } from "../bot/commands/types";
 import * as Config from "../config";
 import { log } from "./logger";
 
-interface ICommand {
-  data: SlashCommandBuilder;
-  execute: (interaction: CommandInteraction) => Promise<void>;
-}
-
 const rest = new REST({ version: "9" }).setToken(Config.token);
 
-const commandsDir = path.resolve(__dirname, "../bot/commands");
-const commands = new Collection<string, ICommand>();
-
-fs.readdirSync(commandsDir).forEach((file: string) => {
-  const command = require(`${commandsDir}/${file}`);
-  commands.set(command.data.name, command);
+const commandMap = new Collection<string, ICommand>();
+Object.values(commands).forEach((command) => {
+  commandMap.set(command.data.name, command);
 });
 
-export const getCommand = (key: string) => commands.get(key);
+export const getCommand = (key: string) => commandMap.get(key);
 
 const getApplicationCommandsRoute = () =>
   Config.isProduction()
@@ -42,23 +33,23 @@ export const registerCommands = async () => {
   try {
     await rest.put(getApplicationCommandsRoute(), {
       body: Array.from(
-        commands.mapValues((command) => command.data.toJSON()).values()
+        commandMap.mapValues((command) => command.data.toJSON()).values()
       ),
     });
-    log(`Successfully registered ${commands.size} application commands.`);
+    log(`Successfully registered ${commandMap.size} application commands.`);
   } catch (e) {
     log("Error registering commands:");
     log(e);
   }
 
-  return commands;
+  return commandMap;
 };
 
 export const removeOldCommands = async () => {
   const existingCommands = (await rest.get(
     getApplicationCommandsRoute()
   )) as APIApplicationCommand[];
-  const currentCommands = Array.from(commands.keys());
+  const currentCommands = Array.from(commandMap.keys());
   try {
     for (const command of existingCommands) {
       if (currentCommands.includes(command.name)) {

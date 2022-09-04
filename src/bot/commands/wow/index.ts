@@ -1,0 +1,50 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction, GuildMember } from "discord.js";
+import { connectToChannel, playWows, timeoutIdMap } from "../../utils/voice";
+import { randomSubcommand } from "../voice/subcommands";
+
+export const data = new SlashCommandBuilder()
+  .setName("wow")
+  .setDescription("Wow!");
+
+export const execute = async (interaction: CommandInteraction) => {
+  if (!(interaction.member instanceof GuildMember)) {
+    // Commands used outside a server (ex: private message)
+    interaction.reply({
+      content: "Wow, this command only works in a server!",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  const channel = interaction.member?.voice.channel;
+  if (!channel) {
+    interaction.reply({
+      content: "Wow, join a voice channel!",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  await interaction.deferReply();
+  const wows = await randomSubcommand.execute(interaction);
+  if (!wows?.length) {
+    interaction.editReply("I couldn't find a wow matching your search :(");
+    return;
+  }
+
+  const [connection, player] = await connectToChannel(channel);
+  await playWows(interaction, player, wows);
+
+  const existingTimout = timeoutIdMap.get(channel.guild.id);
+  if (existingTimout) {
+    clearTimeout(existingTimout);
+  }
+  timeoutIdMap.set(
+    channel.guild.id,
+    setTimeout(() => {
+      connection.destroy();
+      timeoutIdMap.delete(channel.guild.id);
+    }, 60 * 1000 * 5)
+  );
+};

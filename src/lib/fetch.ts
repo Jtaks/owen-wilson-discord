@@ -1,6 +1,6 @@
 import * as https from "https";
 import { URL, URLSearchParams } from "url";
-import { log } from "../../lib/logger";
+import { log } from "./logger";
 
 export const fetch = <T>(
   options: https.RequestOptions | URL | string,

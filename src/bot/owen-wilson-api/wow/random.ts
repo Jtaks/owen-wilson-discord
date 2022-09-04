@@ -1,4 +1,4 @@
-import { fetch } from "../../utils/fetch";
+import { fetch } from "../../../lib/fetch";
 import { buildUrl } from "../buildUrl";
 import { IRandomWowParams, IWowResponse } from "../types";
 
