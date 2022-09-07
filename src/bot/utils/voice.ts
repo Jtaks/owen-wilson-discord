@@ -78,27 +78,3 @@ export const connectToChannel = async (
 
   return [connection, player];
 };
-
-export const getWow = (
-  options: CommandInteraction["options"]
-): Promise<WowPI.IWowResponse[]> => {
-  if (options.getSubcommand() === "ordered") {
-    // Ordered wow returned as single object
-    return WowPI.ordered({ index: options.getInteger("index", true) });
-  }
-
-  const sort = options.getString("sort") as WowPI.WowSort | undefined;
-  const direction = options.getString("direction") as
-    | WowPI.WowDirection
-    | undefined;
-
-  return WowPI.random({
-    results: options.getNumber("results"),
-    year: options.getNumber("year"),
-    movie: options.getString("movie"),
-    director: options.getString("director"),
-    wowsInMovie: options.getString("wows_in_movie"),
-    sort: WowPI.WowSort[sort ?? WowPI.WowSort.movie],
-    direction: WowPI.WowDirection[direction ?? WowPI.WowDirection.asc],
-  });
-};
