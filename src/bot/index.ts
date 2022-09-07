@@ -3,7 +3,7 @@ import * as Config from "../config";
 import {
   getCommand,
   registerCommands,
-  removeOldCommands,
+  removeOldApplicationCommands,
 } from "../lib/command-manager";
 import { debug, log } from "../lib/logger";
 
@@ -65,5 +65,5 @@ const initializeDiscordClient = async () => {
 };
 
 initializeDiscordClient();
-removeOldCommands();
+removeOldApplicationCommands();
 registerCommands();

@@ -1,5 +1,11 @@
 import { program } from "commander";
-import { registerCommands, removeOldCommands } from "../lib/command-manager";
+import {
+  registerCommands,
+  removeApplicationGuildCommands,
+  removeOldApplicationCommands,
+} from "../lib/command-manager";
+
+program.name("owen-wilson-cli");
 
 program
   .option(
@@ -23,8 +29,14 @@ program
   .command("remove")
   .description("Remove old commands")
   .action(() => {
-    // TODO: Remove all guild commands
-    removeOldCommands();
+    removeOldApplicationCommands();
+  });
+
+program
+  .command("remove-guild")
+  .description("Remove all guild commands")
+  .action(() => {
+    removeApplicationGuildCommands();
   });
 
 program.parse();

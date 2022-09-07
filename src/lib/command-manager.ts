@@ -30,42 +30,74 @@ const getApplicationCommandRoute = (commandId: Snowflake) =>
       );
 
 export const registerCommands = async () => {
+  const commandType = Config.isProduction() ? "application" : "guild";
+
   try {
     await rest.put(getApplicationCommandsRoute(), {
       body: Array.from(
         commandMap.mapValues((command) => command.data.toJSON()).values()
       ),
     });
-    log(`Successfully registered ${commandMap.size} application commands.`);
+    log(`Successfully registered ${commandMap.size} ${commandType} commands.`);
   } catch (e) {
-    log("Error registering commands:");
+    log(`Error registering ${commandType} commands:`);
     log(e);
   }
 
   return commandMap;
 };
 
-export const removeOldCommands = async () => {
-  const existingCommands = (await rest.get(
-    getApplicationCommandsRoute()
-  )) as APIApplicationCommand[];
-  const currentCommands = Array.from(commandMap.keys());
-  try {
-    for (const command of existingCommands) {
-      if (currentCommands.includes(command.name)) {
-        return;
-      }
+export const removeOldApplicationCommands = async () => {
+  const commandType = Config.isProduction() ? "application" : "guild";
+  let existingCommands: APIApplicationCommand[];
 
-      log(`Deleting old command: ${command.name}`);
-      try {
-        await rest.delete(getApplicationCommandRoute(command.id));
-      } catch (e) {
-        log(`Error deleting old command: ${command.name}`);
-        log(e);
-      }
-    }
+  try {
+    existingCommands = (await rest.get(
+      getApplicationCommandsRoute()
+    )) as APIApplicationCommand[];
   } catch (e) {
-    log("Error deleting old command:");
+    log(`Error retrieving existing ${commandType} commands:`);
     log(e);
+    return;
+  }
+
+  const currentCommands = Array.from(commandMap.keys());
+
+  for (const command of existingCommands) {
+    if (currentCommands.includes(command.name)) {
+      return;
+    }
+
+    log(`Deleting old ${commandType} command ${command.name}:`);
+    try {
+      await rest.delete(getApplicationCommandRoute(command.id));
+    } catch (e) {
+      log(`Error deleting old ${commandType} command ${command.name}:`);
+      log(e);
+    }
+  }
+};
+
+export const removeApplicationGuildCommands = async () => {
+  let existingCommands: APIApplicationCommand[];
+
+  try {
+    existingCommands = (await rest.get(
+      Routes.applicationGuildCommands(Config.clientId, Config.guildId)
+    )) as APIApplicationCommand[];
+  } catch (e) {
+    log("Error retrieving existing guild commands");
+    log(e);
+    return;
+  }
+
+  for (const command of existingCommands) {
+    log(`Deleting guild command: ${command.name}`);
+    try {
+      await rest.delete(getApplicationCommandRoute(command.id));
+    } catch (e) {
+      log(`Error deleting guild command: ${command.name}`);
+      log(e);
+    }
   }
 };
