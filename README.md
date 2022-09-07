@@ -1,6 +1,6 @@
 # owen-wilson-discord
 
-A discord bot that uses the [owen-wilson-wow-api](https://owen-wilson-wow-api.herokuapp.com/) to deliver content.
+A discord bot that uses the [owen-wilson-wow-api](https://owen-wilson-wow-api.herokuapp.com/) to serve wows.
 
 ## Setup
 
@@ -25,14 +25,40 @@ There are some environment variables that are expected to be set. You can create
 
 `NODE_ENV` determines whether the bot is updates slash commands for a specific guild or all guilds. Use `production` when deploying for public use.
 
+## Running
+
+### One Liner
+
+```
+npm run deploy
+```
+
+If you want to do as little as possible, run this script to deploy and you are good to go.
+
 ### Build
 
 ```
 npm run build
 ```
 
+This project uses typescript. Before running the bot we must compile the files to javascript.
+
 ### Start
 
+There are two start scripts named according to their usage.
+
+#### Development
+
 ```
-npm run start
+npm run start:dev
 ```
+
+This development script uses [nodemon](https://www.npmjs.com/package/nodemon) to enable file compilation and app restart when a file in the source directory is updated.
+
+#### Production
+
+```
+npm run start:prod
+```
+
+This production script uses [pm2](https://www.npmjs.com/package/pm2) to enable background process and automatic restart on crash.

@@ -43,6 +43,7 @@ export const execute = async (interaction: CommandInteraction) => {
     }
     default: {
       interaction.editReply(`Unknown ${data.name} subcommand`);
+      return;
     }
   }
 
@@ -58,6 +59,7 @@ export const execute = async (interaction: CommandInteraction) => {
   if (existingTimout) {
     clearTimeout(existingTimout);
   }
+
   timeoutIdMap.set(
     channel.guild.id,
     setTimeout(() => {

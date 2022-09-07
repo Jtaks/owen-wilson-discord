@@ -16,8 +16,14 @@ const initializeDiscordClient = async () => {
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
   });
 
+  process.on("SIGINT", () => {
+    client.destroy();
+    process.exit(0);
+  });
+
   client.once("ready", () => {
     log("Ready!");
+    process?.send?.("ready");
   });
 
   client.on("interactionCreate", async (interaction) => {
