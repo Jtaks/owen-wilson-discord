@@ -62,3 +62,16 @@ npm run start:prod
 ```
 
 This production script uses [pm2](https://www.npmjs.com/package/pm2) to enable background process and automatic restart on crash.
+
+## Add to Discord Server
+
+Using Discord's [OAuth2 URL Generator](https://discord.com/developers/applications/855547405813153812/oauth2/url-generator), generate a url with the following:
+
+Scopes:
+
+- bot
+
+Bot Permissions:
+
+- Connect
+- Speak
