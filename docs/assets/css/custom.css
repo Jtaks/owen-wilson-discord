@@ -1,0 +1,24 @@
+---
+---
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+.full-center {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.owen-image {
+  max-width: 100%;
+  clip-path: circle(50% at 50% 50%);
+}
