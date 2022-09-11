@@ -2,7 +2,53 @@
 
 A discord bot that uses the [owen-wilson-wow-api](https://owen-wilson-wow-api.herokuapp.com/) to serve wows.
 
-## Setup
+## Add to Discord Server
+
+Click [here](https://discord.com/api/oauth2/authorize?client_id=855547405813153812&permissions=3145728&scope=bot) to `owen-wilson-discord` to your server.
+
+## Slash Commands
+
+### wow
+
+Play a random wow in your current voice channel. Similar to [voice random](#voice-random) but without any options exposed.
+
+### voice random
+
+Play a random wow in your current voice channel.
+
+Optionally filter results based on the following options:
+
+| Option      | Value                                                   | Default | Required |
+| ----------- | ------------------------------------------------------- | ------- | -------- |
+| results     | number                                                  | 1       | no       |
+| year        | number                                                  | -       | no       |
+| movie       | string                                                  | -       | no       |
+| director    | string                                                  | -       | no       |
+| wowsInMovie | string                                                  | -       | no       |
+| sort        | movie, release_date, year, director, number_current_wow | movie   | no       |
+| direction   | asc,desc                                                | asc     | no       |
+
+### voice ordered
+
+Play a specific wow in your current voice channel.
+
+| Option | Value  | Default | Required |
+| ------ | ------ | ------- | -------- |
+| index  | number | -       | yes      |
+
+### video
+
+Reply with a random video wow.
+
+### meta directors
+
+Reply with a list of directors where a wow is said.
+
+### meta movies
+
+Reply with a list of moview where a wow is said.
+
+## Development Setup
 
 ### Dependencies
 
@@ -26,14 +72,6 @@ There are some environment variables that are expected to be set. You can create
 `NODE_ENV` determines whether the bot is updates slash commands for a specific guild or all guilds. Use `production` when deploying for public use.
 
 ## Running
-
-### One Liner
-
-```
-npm run deploy
-```
-
-If you want to do as little as possible, run this script to deploy and you are good to go.
 
 ### Build
 
@@ -63,7 +101,15 @@ npm run start:prod
 
 This production script uses [pm2](https://www.npmjs.com/package/pm2) to enable background process and automatic restart on crash.
 
-## Add to Discord Server
+### Deploy
+
+```
+npm run deploy
+```
+
+Deploy will build and start the bot in production mode.
+
+## Generating Discord URL
 
 Using Discord's [OAuth2 URL Generator](https://discord.com/developers/applications/855547405813153812/oauth2/url-generator), generate a url with the following:
 
