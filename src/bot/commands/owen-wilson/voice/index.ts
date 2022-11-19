@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, GuildMember } from "discord.js";
-import { connectToChannel, playWows, timeoutIdMap } from "../../utils/voice";
+import { connectToChannel, playWows, timeoutIdMap } from "../../../utils/voice";
 import { orderedSubcommand, randomSubcommand } from "./subcommands";
 
 export const data = new SlashCommandBuilder()

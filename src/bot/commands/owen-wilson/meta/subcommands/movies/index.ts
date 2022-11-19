@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import { movies } from "../../../../owen-wilson-api";
+import { movies } from "../../../../../owen-wilson-api";
 
 export const data = new SlashCommandSubcommandBuilder()
   .setName("movies")

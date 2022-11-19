@@ -1,7 +1,7 @@
 import { REST } from "@discordjs/rest";
 import { APIApplicationCommand, Routes } from "discord-api-types/v9";
 import { Collection, Snowflake } from "discord.js";
-import * as commands from "../bot/commands";
+import * as commands from "../bot/commands/owen-wilson";
 import { ICommand } from "../bot/commands/types";
 import * as Config from "../config";
 import { log } from "./logger";

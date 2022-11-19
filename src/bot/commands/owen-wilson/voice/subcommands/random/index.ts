@@ -4,7 +4,7 @@ import {
   SlashCommandSubcommandBuilder,
 } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import * as WowPI from "../../../../owen-wilson-api";
+import * as WowPI from "../../../../../owen-wilson-api";
 
 export const data = new SlashCommandSubcommandBuilder()
   .setName("random")

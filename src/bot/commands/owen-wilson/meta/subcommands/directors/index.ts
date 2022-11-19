@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import { getDirectors } from "../../../../owen-wilson-api";
+import { getDirectors } from "../../../../../owen-wilson-api";
 
 export const data = new SlashCommandSubcommandBuilder()
   .setName("directors")
