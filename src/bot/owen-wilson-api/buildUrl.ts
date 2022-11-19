@@ -1,7 +1,7 @@
 import { URL } from "url";
 import { IOrderedWowParams, IRandomWowParams } from "./types";
 
-const hostname = "https://owen-wilson-wow-api.herokuapp.com";
+const hostname = "https://owen-wilson-wow-api.onrender.com";
 
 export const buildUrl = (
   endpoint: string,
