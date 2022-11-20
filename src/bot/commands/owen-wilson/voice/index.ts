@@ -1,6 +1,11 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember } from "discord.js";
-import { connectToChannel, playWows, timeoutIdMap } from "../../../utils/voice";
+import { CommandInteraction } from "discord.js";
+import {
+  connectToChannel,
+  getChannel,
+  playWows,
+  refreshConnectionTimeout,
+} from "../../../utils/voice";
 import { orderedSubcommand, randomSubcommand } from "./subcommands";
 
 export const data = new SlashCommandBuilder()
@@ -11,21 +16,8 @@ data.addSubcommand(orderedSubcommand.data);
 data.addSubcommand(randomSubcommand.data);
 
 export const execute = async (interaction: CommandInteraction) => {
-  if (!(interaction.member instanceof GuildMember)) {
-    // Commands used outside a server (ex: private message)
-    interaction.reply({
-      content: "Wow, this command only works in a server!",
-      ephemeral: true,
-    });
-    return;
-  }
-
-  const channel = interaction.member?.voice.channel;
+  const channel = getChannel(interaction);
   if (!channel) {
-    interaction.reply({
-      content: "Wow, join a voice channel!",
-      ephemeral: true,
-    });
     return;
   }
 
@@ -54,17 +46,5 @@ export const execute = async (interaction: CommandInteraction) => {
 
   const [connection, player] = await connectToChannel(channel);
   await playWows(interaction, player, wows);
-
-  const existingTimout = timeoutIdMap.get(channel.guild.id);
-  if (existingTimout) {
-    clearTimeout(existingTimout);
-  }
-
-  timeoutIdMap.set(
-    channel.guild.id,
-    setTimeout(() => {
-      connection.destroy();
-      timeoutIdMap.delete(channel.guild.id);
-    }, 60 * 1000 * 5)
-  );
+  refreshConnectionTimeout(channel, connection);
 };

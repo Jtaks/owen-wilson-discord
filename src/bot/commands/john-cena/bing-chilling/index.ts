@@ -1,16 +1,20 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, GuildMember } from "discord.js";
+import { StreamType } from "@discordjs/voice";
+import { CommandInteraction } from "discord.js";
+import { resolve } from "path";
+import { mediaPath } from "../../../../config";
 import {
   connectToChannel,
   getChannel,
-  playWows,
+  playAudio,
   refreshConnectionTimeout,
 } from "../../../utils/voice";
-import { randomSubcommand } from "../voice/subcommands";
+
+const filePath = resolve(mediaPath, "bing-chilling.mp3");
 
 export const data = new SlashCommandBuilder()
-  .setName("wow")
-  .setDescription("Wow!");
+  .setName("bing-chilling")
+  .setDescription("Replies with John Cena saying bing chilling!");
 
 export const execute = async (interaction: CommandInteraction) => {
   const channel = getChannel(interaction);
@@ -19,13 +23,11 @@ export const execute = async (interaction: CommandInteraction) => {
   }
 
   await interaction.deferReply();
-  const wows = await randomSubcommand.execute(interaction);
-  if (!wows?.length) {
-    interaction.editReply("I couldn't find a wow matching your search :(");
-    return;
-  }
 
   const [connection, player] = await connectToChannel(channel);
-  await playWows(interaction, player, wows);
+  playAudio(player, filePath, {
+    inputType: StreamType.Arbitrary,
+  });
   refreshConnectionTimeout(channel, connection);
+  interaction.editReply("Bing chilling 🥶🍦");
 };
